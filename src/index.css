@@ -1,0 +1,266 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --bg-page: #FFFFFF;
+    --text-primary: #1F1F1F;
+    --text-secondary: #5E5E5E;
+    --border-color: #E3E3E3;
+    --hover-bg: #F0F4F9;
+    --sidebar-bg: #F0F4F9;
+    --input-bg: #F0F4F9;
+    --user-pill-bg: #E3E8EC;
+    --accent-blue: #0095F6;
+  }
+
+  html.dark {
+    --bg-page: #131314;
+    --text-primary: #E3E3E3;
+    --text-secondary: #8E8E8E;
+    --border-color: #2D2E30;
+    --hover-bg: #282A2C;
+    --sidebar-bg: #1E1F20;
+    --input-bg: #1E1F20;
+    --user-pill-bg: #282A2C;
+    --accent-blue: #3897F0;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Animations */
+@keyframes geminiFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes geminiPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-geminiFadeIn {
+  animation: geminiFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.gemini-dot-1 {
+  animation: geminiPulse 1.4s infinite ease-in-out;
+  animation-delay: 0s;
+}
+
+.gemini-dot-2 {
+  animation: geminiPulse 1.4s infinite ease-in-out;
+  animation-delay: 0.2s;
+}
+
+.gemini-dot-3 {
+  animation: geminiPulse 1.4s infinite ease-in-out;
+  animation-delay: 0.4s;
+}
+
+.gemini-shimmer-line {
+  background: linear-gradient(90deg, #E3E8EC 25%, #F0F4F9 50%, #E3E8EC 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gemini-shimmer-line {
+    background: linear-gradient(90deg, #282A2C 25%, #333639 50%, #282A2C 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s infinite;
+  }
+}
+
+/* Typography and shapes for Gemini bot answers */
+.gemini-prose {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.gemini-prose p {
+  margin: 0.4rem 0;
+}
+
+.gemini-prose p:first-child {
+  margin-top: 0;
+}
+
+.gemini-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.gemini-prose strong, .gemini-prose b {
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Headings with clear spacing */
+.gemini-prose h1, .gemini-prose h2, .gemini-prose h3 {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.65rem;
+  margin-bottom: 0.3rem;
+}
+
+.gemini-prose h3 {
+  font-size: 0.98rem;
+}
+
+/* Ordered list formatted cleanly without blue accents */
+.gemini-prose ol {
+  list-style-type: decimal;
+  margin: 0.4rem 0 0.4rem 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.gemini-prose ol > li {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Unordered list styled with neutral bullet markers */
+.gemini-prose ul {
+  list-style-type: disc;
+  margin: 0.4rem 0 0.4rem 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.gemini-prose ul > li {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Blockquotes styled cleanly without any blue vertical line or blue background */
+.gemini-prose blockquote {
+  margin: 0.45rem 0;
+  padding: 0.45rem 0.75rem;
+  background-color: rgba(0, 0, 0, 0.035);
+  border: none !important;
+  border-left: none !important;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+html.dark .gemini-prose blockquote {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: none !important;
+  border-left: none !important;
+  color: var(--text-primary);
+}
+
+.gemini-prose blockquote p {
+  margin: 0;
+}
+
+.gemini-prose a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.gemini-prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+  background-color: var(--hover-bg);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.gemini-prose pre {
+  margin: 0.8rem 0;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  background-color: #1E1F20;
+  color: #F0F4F9;
+  overflow-x: auto;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.gemini-prose a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gemini-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8rem 0;
+  font-size: 0.92em;
+}
+
+.gemini-prose th, .gemini-prose td {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.gemini-prose th {
+  background-color: var(--hover-bg);
+  font-weight: 600;
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 140, 0.5);
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Bantuku - Helpdesk Administrasi Polsri",
+  "description": "Layanan chatbot helpdesk administrasi dan informasi akademik Politeknik Negeri Sriwijaya (Polsri).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
