@@ -7,7 +7,6 @@ import { TypingIndicator } from './components/TypingIndicator';
 import { ChatInput } from './components/ChatInput';
 import { ScrollToBottomButton } from './components/ScrollToBottomButton';
 import { InfoModal } from './components/InfoModal';
-import { DocumentModal } from './components/DocumentModal';
 import { AdminUploadModal } from './components/AdminUploadModal';
 import { ChatMessageItem, ChatSession, CampusDocument } from './types';
 
@@ -94,7 +93,6 @@ export default function App() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
-  const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [documents, setDocuments] = useState<CampusDocument[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
@@ -463,10 +461,8 @@ export default function App() {
         onNewChat={handleNewChat}
         onDeleteSession={handleDeleteSession}
         onOpenInfo={() => setInfoModalOpen(true)}
-        onOpenDocuments={() => setDocumentModalOpen(true)}
         onOpenAdmin={() => setAdminModalOpen(true)}
         isAdminLoggedIn={!!adminToken}
-        documentsCount={documents.length}
         theme={theme}
         onToggleTheme={toggleTheme}
       />
@@ -478,10 +474,8 @@ export default function App() {
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
           onNewChat={handleNewChat}
           onOpenInfo={() => setInfoModalOpen(true)}
-          onOpenDocuments={() => setDocumentModalOpen(true)}
           onOpenAdmin={() => setAdminModalOpen(true)}
           isAdminLoggedIn={!!adminToken}
-          documentsCount={documents.length}
           hasMessages={messages.length > 0}
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -539,19 +533,6 @@ export default function App() {
       <InfoModal
         isOpen={infoModalOpen}
         onClose={() => setInfoModalOpen(false)}
-      />
-
-      {/* Official Campus Documents Knowledge Base Modal (Public / Students) */}
-      <DocumentModal
-        isOpen={documentModalOpen}
-        onClose={() => setDocumentModalOpen(false)}
-        documents={documents}
-        onAddDocument={handleAddDocument}
-        onDeleteDocument={handleDeleteDocument}
-        onResetDocuments={handleResetDocuments}
-        isLoading={docsLoading}
-        isAdminLoggedIn={!!adminToken}
-        onOpenAdminModal={() => setAdminModalOpen(true)}
       />
 
       {/* Admin Upload & Management Modal (Restricted with Password) */}

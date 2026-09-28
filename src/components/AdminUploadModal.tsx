@@ -20,6 +20,7 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Search,
 } from 'lucide-react';
 import { CampusDocument } from '../types';
 import { extractTextFromPdf } from '../utils/pdfExtractor';
@@ -63,6 +64,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [expandedDocId, setExpandedDocId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // PDF Extraction States
   const [isExtractingPdf, setIsExtractingPdf] = useState(false);
@@ -722,31 +724,56 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                   </div>
                 </form>
               ) : (
-                /* TAB 2: KELOLA DOKUMEN (LIST DOKUMEN + DELETE + RESET) */
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
-                      Total {documents.length} dokumen tersimpan di memori AI Bantuku
-                    </span>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (window.confirm('Reset semua dokumen kembali ke 5 Dokumen Resmi Standar Polsri?')) {
-                          const ok = await onResetDocuments();
-                          if (ok) {
-                            setStatusMessage({ type: 'success', text: 'Dokumen berhasil direset ke standar kampus.' });
+                /* TAB 2: KELOLA DOKUMEN (LIST DOKUMEN + SEARCH + DELETE + RESET) */
+                <div className="space-y-3.5">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                    {/* Search Input */}
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Cari dokumen, SK, atau aturan..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131314] text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between sm:justify-end gap-3 text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                        {documents.length} Dokumen Aktif
+                      </span>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (window.confirm('Reset semua dokumen kembali ke 5 Dokumen Resmi Standar Polsri?')) {
+                            const ok = await onResetDocuments();
+                            if (ok) {
+                              setStatusMessage({ type: 'success', text: 'Dokumen berhasil direset ke standar kampus.' });
+                            }
                           }
-                        }
-                      }}
-                      className="text-xs text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Reset ke Dokumen Bawaan</span>
-                    </button>
+                        }}
+                        className="text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1.5 transition-colors cursor-pointer text-[11px]"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Reset Default</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
-                    {documents.map((doc) => {
+                    {documents
+                      .filter((doc) => {
+                        if (!searchQuery.trim()) return true;
+                        const q = searchQuery.toLowerCase();
+                        return (
+                          doc.title.toLowerCase().includes(q) ||
+                          doc.docNumber.toLowerCase().includes(q) ||
+                          doc.summary.toLowerCase().includes(q) ||
+                          doc.content.toLowerCase().includes(q)
+                        );
+                      })
+                      .map((doc) => {
                       const isExpanded = expandedDocId === doc.id;
                       return (
                         <div

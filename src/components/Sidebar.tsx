@@ -26,10 +26,8 @@ interface SidebarProps {
   onNewChat: () => void;
   onDeleteSession: (sessionId: string, e: React.MouseEvent) => void;
   onOpenInfo: () => void;
-  onOpenDocuments: () => void;
   onOpenAdmin: () => void;
   isAdminLoggedIn: boolean;
-  documentsCount?: number;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
@@ -43,10 +41,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewChat,
   onDeleteSession,
   onOpenInfo,
-  onOpenDocuments,
   onOpenAdmin,
   isAdminLoggedIn,
-  documentsCount = 5,
   theme,
   onToggleTheme,
 }) => {
@@ -191,24 +187,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => {
-              onOpenDocuments();
-              if (window.innerWidth < 1024) {
-                onToggle();
-              }
-            }}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-full text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer text-left"
-          >
-            <div className="flex items-center gap-3">
-              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Dokumen Resmi Kampus</span>
-            </div>
-            <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-[10px] font-bold">
-              {documentsCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
               onOpenAdmin();
               if (window.innerWidth < 1024) {
                 onToggle();
@@ -226,7 +204,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ) : (
                 <Shield className="w-4 h-4 text-[#5E5E5E] dark:text-[#8E8E8E]" />
               )}
-              <span>{isAdminLoggedIn ? 'Panel Admin (Aktif)' : 'Upload PDF (Khusus Admin)'}</span>
+              <span>{isAdminLoggedIn ? 'Dashboard Admin (Dokumen & Upload)' : 'Dashboard Admin'}</span>
             </div>
             <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
               isAdminLoggedIn

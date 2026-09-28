@@ -115,13 +115,16 @@ ATURAN PENGGUNAAN DOKUMEN & PENCARIAN PENGETAHUAN TERBUKA:
 
 Identitas & Sikap:
 - Nama: Bantuku (Helpdesk Resmi Polsri)
-- Nada bicara: Ramah, santun, profesional, solutif, ringkas, informatif, dan jelas ("Halo Rekan Mahasiswa Polsri!", "Ada yang bisa Bantuku bantu?").
-- Bahasa: Bahasa Indonesia yang baik dan baku namun bersahabat.
+- Nada bicara: Ramah, santun, hangat, asyik, solutif, ringkas, informatif, dan sangat bersahabat ("Halo Rekan Mahasiswa Polsri! 👋", "Ada yang bisa Bantuku bantu hari ini? 😊").
+- Bahasa: Bahasa Indonesia yang komunikatif, luwes, dan akrab bagi mahasiswa.
+- PENGGUNAAN EMOTE / EMOJI:
+  * SELALU sisipkan emote / emoji yang relevan dan ekspresif di setiap jawaban agar obrolan terasa hidup, seru, dan tidak kaku (misal: 🎓 untuk akademik/wisuda/jurusan, 📄/📑 untuk berkas & surat, 💰/💳 untuk UKT & pembayaran, 🏢 untuk gedung & kampus, ⏳/⏰ untuk tenggat waktu/jadwal, 💡 untuk tips, 📍 untuk lokasi, ✨/🚀 untuk penyemangat, dan 😊/👋/🙌 untuk sapaan).
+  * Letakkan emoji secara natural pada salam pembuka, judul poin, bullet list, kalimat penting, dan penutup.
 
 Format Jawaban:
 - Jawablah secara cerdas dan adaptif:
-  * Pertanyaan alur/prosedur -> sajikan dalam poin langkah ringkas bernomor (1., 2., 3.).
-  * Pertanyaan profil, dosen, prodi, sejarah, fasilitas, atau informasi umum Polsri -> jelaskan secara lengkap, jelas, dan akurat berdasarkan fakta.
+  * Pertanyaan alur/prosedur -> sajikan dalam poin langkah ringkas bernomor (1., 2., 3.) dengan ikon/emoji yang sesuai.
+  * Pertanyaan profil, dosen, prodi, sejarah, fasilitas, atau informasi umum Polsri -> jelaskan secara lengkap, jelas, dan akurat berdasarkan fakta disertai emoji pendukung.
 - Gunakan **teks tebal** untuk nama berkas, nomor surat/SK, nama dosen/pejabat, jurusan, dan tautan resmi.
 - SELALU sertakan tautan resmi **https://polsri.ac.id/** di dalam jawaban sebagai rujukan yang valid dan dapat diakses bebas tanpa login.
 - Di bagian akhir setiap jawaban, SELALU cantumkan label sumber dokumen dalam format:
@@ -364,18 +367,15 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       });
     }
 
-    // Keep at most 12 recent turns to stay well within limits
-    const formattedContents = alternatingContents.slice(-12);
+    // Keep at most 10 recent turns to stay well within token and rate limits
+    const formattedContents = alternatingContents.slice(-10);
 
-    // List of configurations to try in order:
-    // 1. 'gemini-3.8-flash' with Google Search Grounding (live web search with automatic sources)
-    // 2. 'gemini-3.8-flash' standard (broad knowledge base)
-    // 3. 'gemini-3.1-flash-lite' fallback (instant response)
-    const candidateConfigs = [
-      {
-        model: 'gemini-3.8-flash',
-        tools: [{ googleSearch: {} }],
-      },
+    // Check if the user is explicitly requesting live external web search
+    const isExplicitSearchRequest = /\b(cari\s+di\s+web|cari\s+online|search\s+web|google\s+search|berita\s+terbaru|info\s+terkini\s+luar)\b/i.test(currentText);
+
+    // List of candidate model configurations to try in order.
+    // Standard models without heavy search tools are preferred to preserve quota and avoid 429 errors.
+    const candidateConfigs: Array<{ model: string; tools?: any[] }> = [
       {
         model: 'gemini-3.8-flash',
         tools: undefined,
@@ -384,7 +384,19 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         model: 'gemini-3.1-flash-lite',
         tools: undefined,
       },
+      {
+        model: 'gemini-flash-latest',
+        tools: undefined,
+      },
     ];
+
+    // If explicitly requested, insert search grounding as an option, but with graceful fallback
+    if (isExplicitSearchRequest) {
+      candidateConfigs.unshift({
+        model: 'gemini-3.8-flash',
+        tools: [{ googleSearch: {} }],
+      });
+    }
 
     let response: any = null;
     let lastError: any = null;
@@ -409,13 +421,32 @@ app.post('/api/chat', async (req: Request, res: Response) => {
           break; // Succeeded!
         }
       } catch (err: any) {
-        console.warn(`[Bantuku] Model ${item.model} (search: ${!!item.tools}) failed:`, err?.message || err);
+        // Silently log fallback without dumping raw json that triggers error monitors
+        const status = err?.status || err?.code || 'unknown';
+        console.log(`[Bantuku] Switching from ${item.model} (search: ${!!item.tools}, status: ${status})`);
         lastError = err;
-        // Continue to try next candidate
+        // Brief delay before trying next candidate to allow rate-limiting bursts to ease
+        await new Promise((r) => setTimeout(r, 350));
       }
     }
 
+    // If all candidates failed due to 429/quota exhaustion, provide a graceful campus helpdesk answer
     if (!response || !response.text) {
+      const isQuotaExhausted =
+        lastError?.message?.includes('RESOURCE_EXHAUSTED') ||
+        lastError?.message?.includes('429') ||
+        lastError?.status === 429 ||
+        lastError?.code === 429;
+
+      if (isQuotaExhausted) {
+        return res.json({
+          text: `Halo rekan mahasiswa! 👋 Bantuku saat ini sedang kebanjiran banyak pertanyaan sekaligus sehingga antrean pemrosesan AI sedang penuh sejenak (Rate Limit 429) ⏳.\n\nSambil menunggu antrean mereda (sekitar 30–60 detik lagi ✨), berikut kontak resmi kampus **Politeknik Negeri Sriwijaya (Polsri)** yang bisa kamu hubungi langsung jika ada hal mendesak:\n\n* 🏢 **Subbagian Akademik & Kemahasiswaan (BAAK):** Gedung Kantor Pusat Lantai 1 | 📞 Telp: (0711) 353414 | ✉️ Email: akademik@polsri.ac.id\n* 💳 **Bagian Keuangan & Layanan UKT:** Gedung Kantor Pusat Lantai 2 | ✉️ Email: keuangan@polsri.ac.id\n* 🌐 **Website Resmi Kampus:** [polsri.ac.id](https://polsri.ac.id/)\n\n*Bantuku siap menjawab lagi sebentar lagi ya, silakan coba kirim ulang pertanyaanmu sesaat lagi!* 😊🙏`,
+          sources: ['Website Resmi Polsri (https://polsri.ac.id/)', 'Helpdesk BAAK Polsri'],
+          timestamp: new Date().toISOString(),
+          isQuotaNotice: true,
+        });
+      }
+
       throw lastError || new Error('Tidak ada respons dari model AI.');
     }
 

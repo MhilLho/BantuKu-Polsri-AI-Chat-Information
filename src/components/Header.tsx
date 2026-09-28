@@ -5,10 +5,8 @@ interface HeaderProps {
   onToggleSidebar: () => void;
   onNewChat: () => void;
   onOpenInfo: () => void;
-  onOpenDocuments: () => void;
   onOpenAdmin: () => void;
   isAdminLoggedIn: boolean;
-  documentsCount?: number;
   hasMessages: boolean;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
@@ -18,10 +16,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onNewChat,
   onOpenInfo,
-  onOpenDocuments,
   onOpenAdmin,
   isAdminLoggedIn,
-  documentsCount = 5,
   hasMessages,
   theme,
   onToggleTheme,
@@ -52,22 +48,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right: Theme Toggle, Documents Knowledge Base, Info & Reset / New Chat Action Buttons */}
+        {/* Right: Theme Toggle, Admin Dashboard, Info & Reset / New Chat Action Buttons */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Documents Knowledge Base Button */}
-          <button
-            onClick={onOpenDocuments}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
-            title="Basis Pengetahuan Dokumen Resmi Kampus (SK & Peraturan)"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Dokumen Resmi</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-emerald-200/80 dark:bg-emerald-800/80 text-[10px] font-bold">
-              {documentsCount}
-            </span>
-          </button>
-
-          {/* Admin / Upload PDF Button */}
+          {/* Admin Dashboard / PDF Upload Button */}
           <button
             onClick={onOpenAdmin}
             className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
@@ -75,14 +58,14 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100'
                 : 'bg-slate-50 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100'
             }`}
-            title={isAdminLoggedIn ? 'Panel Admin Polsri (Aktif)' : 'Upload PDF (Khusus Admin)'}
+            title={isAdminLoggedIn ? 'Panel Admin Polsri (Aktif)' : 'Login Admin Polsri'}
           >
             {isAdminLoggedIn ? (
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             ) : (
               <Shield className="w-3.5 h-3.5 text-slate-500" />
             )}
-            <span className="hidden sm:inline">{isAdminLoggedIn ? 'Panel Admin' : 'Upload PDF'}</span>
+            <span className="hidden sm:inline">{isAdminLoggedIn ? 'Panel Admin' : 'Admin'}</span>
           </button>
 
           {/* Theme Toggle Button */}
